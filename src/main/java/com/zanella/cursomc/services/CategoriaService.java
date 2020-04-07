@@ -2,11 +2,9 @@ package com.zanella.cursomc.services;
 
 import com.zanella.cursomc.domain.Categoria;
 import com.zanella.cursomc.repositories.CategoriaRepository;
-import org.hibernate.ObjectNotFoundException;
+import com.zanella.cursomc.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Optional;
 
@@ -18,6 +16,6 @@ public class CategoriaService {
 
     public Categoria find(Integer id) {
         Optional<Categoria> obj = repository.findById(id);
-        return obj.orElse(null);
+        return obj.orElseThrow(() -> new ObjectNotFoundException("Object not found! " + "id: " + id));
     }
 }
