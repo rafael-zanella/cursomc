@@ -22,7 +22,7 @@ public class CategoriaResource {
     private CategoriaService service;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> find(@PathVariable Integer id) {
+    public ResponseEntity<Categoria> find(@PathVariable Integer id) {
         Categoria obj = service.find(id);
 		return new ResponseEntity<>(obj, HttpStatus.OK);
     }
@@ -37,5 +37,12 @@ public class CategoriaResource {
                 .toUri();
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<Void> update(@RequestBody Categoria obj, @PathVariable Integer id) {
+        obj.setId(id);
+        obj = service.update(obj);
+        return ResponseEntity.noContent().build();
     }
 }
