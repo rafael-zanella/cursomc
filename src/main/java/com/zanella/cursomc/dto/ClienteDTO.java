@@ -1,12 +1,14 @@
 package com.zanella.cursomc.dto;
 
 import com.zanella.cursomc.domain.Cliente;
+import com.zanella.cursomc.services.validation.ClienteUpdate;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
+@ClienteUpdate
 public class ClienteDTO implements Serializable {
 
     private Integer id;
