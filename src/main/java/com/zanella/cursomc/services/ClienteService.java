@@ -1,8 +1,14 @@
 package com.zanella.cursomc.services;
 
+import com.zanella.cursomc.domain.Cidade;
 import com.zanella.cursomc.domain.Cliente;
+import com.zanella.cursomc.domain.Endereco;
+import com.zanella.cursomc.domain.enums.TipoCliente;
 import com.zanella.cursomc.dto.ClienteDTO;
+import com.zanella.cursomc.dto.ClienteNewDTO;
+import com.zanella.cursomc.repositories.CidadeRepository;
 import com.zanella.cursomc.repositories.ClienteRepository;
+import com.zanella.cursomc.repositories.EnderecoRepository;
 import com.zanella.cursomc.services.exceptions.DataIntegrityException;
 import com.zanella.cursomc.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +28,22 @@ public class ClienteService {
     @Autowired
     private ClienteRepository repository;
 
+    @Autowired
+    private CidadeRepository cidadeRepository;
+
+    @Autowired
+    private EnderecoRepository enderecoRepository;
+
     public Cliente find(Integer id) {
         Optional<Cliente> obj = repository.findById(id);
         return obj.orElseThrow(() -> new ObjectNotFoundException("Object not found! " + "id: " + id));
+    }
+
+    public Cliente insert(Cliente obj) {
+        obj.setId(null);
+        obj = repository.save(obj);
+        enderecoRepository.saveAll(obj.getEnderecos());
+        return obj;
     }
 
     public Cliente update(Cliente obj) {
@@ -52,6 +72,21 @@ public class ClienteService {
 
     public Cliente fromDTO(ClienteDTO objDto) {
         return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null);
+    }
+
+    public Cliente fromDTO(ClienteNewDTO objDto) {
+        Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()));
+        Optional<Cidade> cid = cidadeRepository.findById(objDto.getCidadeId());
+        Endereco end = new Endereco(
+                null, objDto.getLogradouro(), objDto.getNumero(),
+                objDto.getComplemento(), objDto.getBairro(), objDto.getCep(), cli,
+                cid.orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada."))
+        );
+
+        cli.getEnderecos().add(end);
+        cli.getTelefones().addAll(Arrays.asList(objDto.getTelefone1(), objDto.getTelefone2(), objDto.getTelefone3()));
+
+        return cli;
     }
 
     private void updateData(Cliente newObj, Cliente obj) {
