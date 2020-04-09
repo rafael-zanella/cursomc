@@ -7,7 +7,7 @@ import com.zanella.cursomc.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,6 +38,9 @@ public class CategoriaService {
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityException("Não é possivel excluir uma Categoria que possui produtos.");
         }
+    }
 
+    public List<Categoria> findAll() {
+        return repository.findAll();
     }
 }
