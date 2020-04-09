@@ -2,8 +2,10 @@ package com.zanella.cursomc.services;
 
 import com.zanella.cursomc.domain.Categoria;
 import com.zanella.cursomc.repositories.CategoriaRepository;
+import com.zanella.cursomc.services.exceptions.DataIntegrityException;
 import com.zanella.cursomc.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,5 +29,15 @@ public class CategoriaService {
     public Categoria update(Categoria obj) {
         find(obj.getId());
         return repository.save(obj);
+    }
+
+    public void delete(Integer id){
+        find(id);
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityException("Não é possivel excluir uma Categoria que possui produtos.");
+        }
+
     }
 }
