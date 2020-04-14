@@ -1,15 +1,17 @@
 package com.zanella.cursomc.services;
 
-import com.zanella.cursomc.domain.ItemPedido;
-import com.zanella.cursomc.domain.Pagamento;
-import com.zanella.cursomc.domain.PagamentoComBoleto;
-import com.zanella.cursomc.domain.Pedido;
+import com.zanella.cursomc.domain.*;
 import com.zanella.cursomc.domain.enums.EstadoPagamento;
 import com.zanella.cursomc.repositories.ItemPedidoRepository;
 import com.zanella.cursomc.repositories.PagamentoRepository;
 import com.zanella.cursomc.repositories.PedidoRepository;
+import com.zanella.cursomc.security.UserDetailsImpl;
+import com.zanella.cursomc.services.exceptions.AuthorizationException;
 import com.zanella.cursomc.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -65,5 +67,15 @@ public class PedidoService {
         itemPedidoRepository.saveAll(obj.getItemPedidos());
         emailService.sendOrderConfirmationEmail(obj);
         return obj;
+    }
+
+    public Page<Pedido> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+        UserDetailsImpl user = UserService.authenticated();
+        if(user == null) {
+            throw new AuthorizationException("Acesso negado!");
+        }
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        Cliente cliente = clienteService.find(user.getId());
+        return repository.findByCliente(cliente, pageRequest);
     }
 }
