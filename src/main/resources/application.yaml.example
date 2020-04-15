@@ -7,6 +7,10 @@ s3:
 aws:
   access_key_id:
   secret_access_key:
+img:
+  prefix:
+    client:
+      profile: cp
 default:
   recipient: xxxx@email.com
   sender: yyyy@email.com
